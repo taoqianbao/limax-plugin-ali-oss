@@ -1,0 +1,102 @@
+{
+  "name": "limax-plugin-ali-oss",
+  "displayName": "limax-plugin-ali-oss",
+  "description": "一键上传图片到阿里云OSS，自动替换图片链接",
+  "version": "0.0.3",
+  "publisher": "PeterZhu",
+  "engines": {
+    "vscode": "^1.78.2"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "PeterZhu",
+    "taoqianbao",
+    "limax",
+    "aliyun",
+    "oss",
+    "image",
+    "upload"
+  ],
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/limax/limax-plugin-ali-oss"
+  },
+  "activationEvents": [
+    "onCommand:limax-plugin-ali-oss.uploadToOSS"
+  ],
+  "main": "./out/main.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "limax-plugin-ali-oss.uploadToOSS",
+        "title": "上传到阿里云 OSS"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "resourceLangId =~ /(javascript|typescript|vue|react|html|css|less|scss|sass|stylus|jsx|tsx)/",
+          "command": "limax-plugin-ali-oss.uploadToOSS",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "阿里云 OSS 配置",
+      "properties": {
+        "limax-plugin-ali-oss.accessKeyId": {
+          "type": "string",
+          "default": "",
+          "description": "阿里云 AccessKey ID"
+        },
+        "limax-plugin-ali-oss.accessKeySecret": {
+          "type": "string",
+          "default": "",
+          "description": "阿里云 AccessKey Secret"
+        },
+        "limax-plugin-ali-oss.bucket": {
+          "type": "string",
+          "default": "",
+          "description": "OSS Bucket 名称"
+        },
+        "limax-plugin-ali-oss.region": {
+          "type": "string",
+          "default": "oss-cn-hangzhou",
+          "description": "OSS Region 地域"
+        },
+        "limax-plugin-ali-oss.uploadPath": {
+          "type": "string",
+          "default": "images",
+          "description": "OSS 上传目录"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "dependencies": {
+    "ali-oss": "^6.22.0"
+  },
+  "devDependencies": {
+    "@types/ali-oss": "^6.16.11",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.78.2",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.2",
+    "eslint": "^9.21.0",
+    "typescript": "^5.7.3"
+  }
+}
