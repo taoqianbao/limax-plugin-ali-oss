@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
       const text = editor.document.getText(selection);
 
       // 从文本中提取图片路径
-      const imgPathMatch = text.match(/['"]([^'"]+\.(png|jpg|jpeg|gif|webp))['"]/);
+      const imgPathMatch = text.match(/['"]([@/]?[^'"]+\.(png|jpg|jpeg|gif|webp))['"]/);
       if (!imgPathMatch) {
         vscode.window.showErrorMessage('请选择包含图片路径的文本');
         return;
@@ -47,9 +47,25 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       // 获取图片的完整路径
-      const fullImgPath = path.isAbsolute(imgPath)
-        ? imgPath
-        : path.resolve(path.dirname(editor.document.uri.fsPath), imgPath);
+      let fullImgPath = '';
+      // 处理各种别名路径
+      if (imgPath.startsWith('@/')) {
+        // 处理 @/ 开头的路径（Vue/UniApp 项目的别名路径）
+        fullImgPath = path.join(workspaceFolder.uri.fsPath, 'src', imgPath.slice(2));
+      } else if (imgPath.match(/^@[^/]+\//)) {
+        // 处理 @xxx/ 开头的路径（如 @static/、@assets/ 等），统一解析到 src 目录下
+        const matchResult = imgPath.match(/^@([^/]+)\/(.*)/); // 提取别名和剩余路径
+        if (!matchResult) {
+          vscode.window.showErrorMessage('无效的别名路径格式');
+          return;
+        }
+        const [, alias, restPath] = matchResult;
+        fullImgPath = path.join(workspaceFolder.uri.fsPath, 'src', alias, restPath);
+      } else if (path.isAbsolute(imgPath)) {
+        fullImgPath = imgPath;
+      } else {
+        fullImgPath = path.resolve(path.dirname(editor.document.uri.fsPath), imgPath);
+      }
 
       // 检查文件是否存在
       if (!fs.existsSync(fullImgPath)) {
