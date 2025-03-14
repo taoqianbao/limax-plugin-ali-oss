@@ -13,6 +13,9 @@ export interface OSSConfig {
   uploadPath?: string;
 }
 
+// 存储配置文件监听器
+let configWatcher: fs.FSWatcher | null = null;
+
 // 从配置文件读取 OSS 配置
 export async function loadOSSConfig(workspaceFolder: string): Promise<OSSConfig | null> {
   const outputChannel = vscode.window.createOutputChannel('Limax Plugin Ali OSS');
@@ -23,6 +26,8 @@ export async function loadOSSConfig(workspaceFolder: string): Promise<OSSConfig 
   try {
     if (fs.existsSync(configPath)) {
       outputChannel.appendLine('配置文件存在，开始读取...');
+      // 清除 require 缓存，确保每次都读取最新的配置
+      delete require.cache[require.resolve(configPath)];
       const config = require(configPath);
       outputChannel.appendLine('配置文件加载成功');
       return config;
@@ -46,6 +51,19 @@ export async function getOSSConfig(workspaceFolder: string): Promise<OSSConfig> 
   if (fileConfig) {
     outputChannel.appendLine('使用配置文件中的设置');
     config = fileConfig;
+
+    // 设置配置文件监听
+    const configPath = path.join(workspaceFolder, 'oss.config.limax.js');
+    if (!configWatcher) {
+      configWatcher = fs.watch(configPath, (eventType) => {
+        if (eventType === 'change') {
+          outputChannel.appendLine('检测到配置文件变更，正在重新加载...');
+          // 触发配置更新事件
+          vscode.commands.executeCommand('workbench.action.reloadWindow');
+        }
+      });
+      outputChannel.appendLine('已启动配置文件监听');
+    }
   } else {
     outputChannel.appendLine('使用 VSCode 设置');
     const vsConfig = vscode.workspace.getConfiguration('limax-plugin-ali-oss');
@@ -73,4 +91,12 @@ export async function getOSSConfig(workspaceFolder: string): Promise<OSSConfig> 
   }
 
   return config;
+}
+
+// 清理配置文件监听器
+export function disposeConfigWatcher() {
+  if (configWatcher) {
+    configWatcher.close();
+    configWatcher = null;
+  }
 }
