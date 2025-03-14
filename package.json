@@ -2,7 +2,7 @@
   "name": "limax-plugin-ali-oss",
   "displayName": "Limax Plugin Ali OSS",
   "description": "一键上传图片到阿里云OSS，自动替换图片链接",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "publisher": "PeterZhu",
   "engines": {
     "vscode": "^1.78.2"
@@ -22,10 +22,11 @@
   "icon": "images/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/limax/limax-plugin-ali-oss"
+    "url": "https://github.com/taoqianbao/limax-plugin-ali-oss"
   },
   "activationEvents": [
-    "onCommand:limax-plugin-ali-oss.uploadToOSS"
+    "onCommand:limax-plugin-ali-oss.uploadToOSS",
+    "onCommand:limax-plugin-ali-oss.uploadBatchToOSS"
   ],
   "main": "./out/main.js",
   "contributes": {
@@ -33,6 +34,10 @@
       {
         "command": "limax-plugin-ali-oss.uploadToOSS",
         "title": "上传到阿里云 OSS"
+      },
+      {
+        "command": "limax-plugin-ali-oss.uploadBatchToOSS",
+        "title": "批量上传到阿里云 OSS"
       }
     ],
     "menus": {
@@ -40,6 +45,13 @@
         {
           "when": "resourceLangId =~ /(javascript|typescript|vue|react|html|css|less|scss|sass|stylus|jsx|tsx)/",
           "command": "limax-plugin-ali-oss.uploadToOSS",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "explorerResourceIsFolder",
+          "command": "limax-plugin-ali-oss.uploadBatchToOSS",
           "group": "navigation"
         }
       ]
@@ -85,12 +97,14 @@
     "package": "vsce package"
   },
   "dependencies": {
-    "ali-oss": "^6.22.0"
+    "ali-oss": "^6.22.0",
+    "sinon": "^19.0.2"
   },
   "devDependencies": {
     "@types/ali-oss": "^6.16.11",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@types/sinon": "^17.0.4",
     "@types/vscode": "^1.78.2",
     "@typescript-eslint/eslint-plugin": "^8.25.0",
     "@typescript-eslint/parser": "^8.25.0",

@@ -62,6 +62,9 @@ vsce package
 vsce publish
 ```
 
+
+https://marketplace.visualstudio.com/manage/publishers/peterzhu
+
 https://marketplace.visualstudio.com/items?itemName=PeterZhu.limax-plugin-ali-oss
 
 注意：所有文件必须在根目录下打包，不要包含额外的目录层级。使用以下命令打包：
