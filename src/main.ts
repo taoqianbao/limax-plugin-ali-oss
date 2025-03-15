@@ -76,16 +76,21 @@ export function activate(context: vscode.ExtensionContext) {
       });
 
       // 生成 OSS 路径，保持原有目录结构
-      let relativePath = path.relative(path.join(workspaceFolder.uri.fsPath, 'src'), path.dirname(imageInfo.fullPath));
-      // 如果是别名路径（以@开头），则从第一个/之后的路径开始使用
+      let relativePath;
       if (imageInfo.originalPath.startsWith('@')) {
+        // 处理别名路径（以@开头），从第一个/之后的路径开始使用
         const pathParts = imageInfo.originalPath.split('/');
         pathParts.shift(); // 移除@开头的部分（如@assets、@static等）
         relativePath = pathParts.slice(0, -1).join('/');
       } else if (imageInfo.originalPath.startsWith('/static/')) {
-        // 如果路径以/static/开头，移除/static前缀
-        relativePath = imageInfo.originalPath.slice(7); // 移除'/static/'
-        relativePath = path.dirname(relativePath); // 获取目录部分
+        // 处理/static/开头的路径，移除/static前缀
+        relativePath = path.dirname(imageInfo.originalPath.slice(7)); // 移除'/static/'并获取目录部分
+      } else {
+        // 处理其他路径，从src目录开始计算相对路径
+        relativePath = path.relative(
+          path.join(workspaceFolder.uri.fsPath, 'src'),
+          path.dirname(imageInfo.fullPath)
+        ).split(path.sep).join('/'); // 统一使用正斜杠
       }
       const ossPath = path.posix.join(uploadPath || 'images', relativePath, imageInfo.fileName);
 
