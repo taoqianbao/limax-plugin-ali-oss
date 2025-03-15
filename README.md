@@ -62,7 +62,6 @@ vsce package
 vsce publish
 ```
 
-
 https://marketplace.visualstudio.com/manage/publishers/peterzhu
 
 https://marketplace.visualstudio.com/items?itemName=PeterZhu.limax-plugin-ali-oss

@@ -6,6 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.5] - 2024-01-09
+
+- 优化图片路径处理逻辑
+  - 支持处理以 @assets/ 等开头的别名路径
+  - 优化 /static/ 前缀的路径处理
+  - 保持原有目录结构上传到 OSS
+
 ## [0.0.4] - 2024-01-08
 
 - 优化图片上传逻辑

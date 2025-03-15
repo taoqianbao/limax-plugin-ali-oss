@@ -61,7 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
       // 解析图片路径
       const imageInfo = resolveImagePath(text, workspaceFolder, editor.document.uri.fsPath);
       if (!imageInfo) {
-        outputChannel.appendLine('错误：无效的图片路径:'+ imageInfo);
+        outputChannel.appendLine('错误：无效的图片路径:' + imageInfo);
         vscode.window.showErrorMessage('请选择包含有效的图片路径的文本');
         return;
       }
@@ -75,8 +75,19 @@ export function activate(context: vscode.ExtensionContext) {
         bucket
       });
 
-      // 生成 OSS 路径
-      const ossPath = `${uploadPath}/${imageInfo.fileName}`;
+      // 生成 OSS 路径，保持原有目录结构
+      let relativePath = path.relative(path.join(workspaceFolder.uri.fsPath, 'src'), path.dirname(imageInfo.fullPath));
+      // 如果是别名路径（以@开头），则从第一个/之后的路径开始使用
+      if (imageInfo.originalPath.startsWith('@')) {
+        const pathParts = imageInfo.originalPath.split('/');
+        pathParts.shift(); // 移除@开头的部分（如@assets、@static等）
+        relativePath = pathParts.slice(0, -1).join('/');
+      } else if (imageInfo.originalPath.startsWith('/static/')) {
+        // 如果路径以/static/开头，移除/static前缀
+        relativePath = imageInfo.originalPath.slice(7); // 移除'/static/'
+        relativePath = path.dirname(relativePath); // 获取目录部分
+      }
+      const ossPath = path.posix.join(uploadPath || 'images', relativePath, imageInfo.fileName);
 
       // 上传文件
       outputChannel.appendLine(`开始上传文件: ${imageInfo.fileName}`);
@@ -131,6 +142,8 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('错误：OSS 配置信息不完整');
         vscode.window.showErrorMessage('请先配置阿里云 OSS 信息');
         return;
+      } else {
+        outputChannel.appendLine('OSS 配置信息完整');
       }
 
       // 创建 OSS 客户端
@@ -152,18 +165,20 @@ export function activate(context: vscode.ExtensionContext) {
           if (stat.isDirectory()) {
             walkDir(filePath, base);
           } else {
-            // 计算相对路径，从src/static开始
-            const srcStaticPath = path.join(workspaceFolder.uri.fsPath, 'src', 'static');
+            // 计算相对路径，从static目录开始
+            const staticPath = path.join(workspaceFolder.uri.fsPath, 'src', 'static');
             let relativePath;
-            
-            if (filePath.startsWith(srcStaticPath)) {
-              // 如果文件在src/static目录下，计算相对于src/static的路径
-              relativePath = path.relative(srcStaticPath, filePath);
+
+            if (filePath.startsWith(staticPath)) {
+              // 如果文件在static目录下，获取static下级目录的路径
+              const pathParts = path.relative(staticPath, filePath).split(path.sep);
+              // 如果有下级目录，则从第一个目录开始使用
+              relativePath = pathParts.join('/');
             } else {
               // 否则使用相对于选中目录的路径
               relativePath = path.relative(base, filePath);
             }
-            
+
             imageFiles.push({
               path: filePath,
               relativePath: relativePath
@@ -196,7 +211,7 @@ export function activate(context: vscode.ExtensionContext) {
         outputChannel.appendLine('开始上传文件...');
         // 批量处理图片上传
         for (const imageFile of imageFiles) {
-          const ossPath = `${uploadPath}/${imageFile.relativePath}`;
+          const ossPath = path.posix.join(uploadPath || 'images', imageFile.relativePath.split(path.sep).join('/'));
           outputChannel.appendLine(`正在上传: ${imageFile.relativePath}`);
           outputChannel.appendLine(`OSS 目标路径: ${ossPath}`);
 
@@ -205,7 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
             await client.put(ossPath, imageFile.path);
             const ossUrl = `https://${bucket}.${region}.aliyuncs.com/${ossPath}`;
             outputChannel.appendLine(`上传成功: ${ossUrl}`);
-            
+
             current++;
             successCount++;
             progress.report({ increment: (100 / total), message: `已上传 ${current}/${total}` });
@@ -232,4 +247,4 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(uploadSingleDisposable, uploadBatchDisposable);
 }
 
-export function deactivate() {}
+export function deactivate() { }

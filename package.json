@@ -2,7 +2,7 @@
   "name": "limax-plugin-ali-oss",
   "displayName": "Limax Plugin Ali OSS",
   "description": "一键上传图片到阿里云OSS，自动替换图片链接",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "publisher": "PeterZhu",
   "engines": {
     "vscode": "^1.78.2"

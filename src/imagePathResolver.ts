@@ -14,9 +14,7 @@ export interface ImagePathInfo {
 
 // 支持的文件类型
 const SUPPORTED_FILE_EXTENSIONS = [
-  'png', 'jpg', 'jpeg', 'gif', 'webp',
-  'ttf', 'woff', 'woff2', 'eot',
-  'css', 'less', 'scss', 'sass'
+  'png', 'jpg', 'jpeg', 'gif', 'webp','ttf', 'woff', 'woff2', 'eot','css', 'mp3', 'mp4', 'pdf'
 ];
 
 /**
@@ -38,22 +36,18 @@ export function resolveImagePath(text: string, workspaceFolder: vscode.Workspace
     // 定义各种路径格式的正则表达式
     // 定义独立的路径匹配模式
     // 定义支持的文件扩展名模式
-    const extensionPattern = `\\\.(${SUPPORTED_FILE_EXTENSIONS.join('|')})$`;
+    const extensionPattern = `${SUPPORTED_FILE_EXTENSIONS.join('|')}`;
 
     // 定义各种路径格式的正则表达式
     const patterns = [
-      // @/开头的路径
-      /^@\/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp)$/,  // @/开头的路径
-      // @xxx/开头的路径
-      /^@[\w-]+\/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp)$/,  // @xxx/开头的路径
-      // 绝对路径
-      /^\/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp)$/,  // 绝对路径
-      // 相对路径
-      /^\.[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp)$/   // 相对路径
+      /^@\/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp|ttf|woff|woff2|eot|css|mp3|mp4|pdf)$/,  // @/开头的路径
+      /^@[\w-]+\/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp|ttf|woff|woff2|eot|css|mp3|mp4|pdf)$/,  // @xxx/开头的路径
+      /^\/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp|ttf|woff|woff2|eot|css|mp3|mp4|pdf)$/,  // 绝对路径
+      /^\.[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp|ttf|woff|woff2|eot|css|mp3|mp4|pdf)$/   // 相对路径
     ];
 
     // 构建正则表达式，移除^符号以增加灵活性
-    const imgPathMatch = patterns.some(pattern => pattern.test(text)) ? text.match(/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp)/g) : null;
+    const imgPathMatch = patterns.some(pattern => pattern.test(text)) ? text.match(/[^\s"'<>|?*]+\.(png|jpg|jpeg|gif|webp|ttf|woff|woff2|eot|css|mp3|mp4|pdf)/g) : null;
 
     if (!imgPathMatch) {
       outputChannel.appendLine('错误:未检测到有效的资源路径');
